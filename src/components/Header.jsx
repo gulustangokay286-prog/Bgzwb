@@ -57,6 +57,9 @@ const Header = () => {
           </a>
 
           <div className="nav-actions">
+            <a href="/register" className="top-campus-btn" style={{ padding: '8px 16px', background: '#2563eb', color: 'white', borderRadius: '8px', fontWeight: 'bold', fontSize: '14px', textDecoration: 'none' }}>
+              Kayıt Ol
+            </a>
             <button className="search-btn" onClick={() => setSearchOpen(!searchOpen)} aria-label="Ara">
               <IconSearch size={22} />
             </button>
