@@ -82,8 +82,9 @@ export default function RegisterPage() {
   };
 
   return (
-    <Script src="https://cdn.tailwindcss.com" strategy="beforeInteractive" />
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
+    <>
+      <Script src="https://cdn.tailwindcss.com" strategy="beforeInteractive" />
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
       
 
       <div className="w-full max-w-md bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
@@ -245,5 +246,6 @@ export default function RegisterPage() {
 
       </div>
     </div>
+    </>
   );
 }
