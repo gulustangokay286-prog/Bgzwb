@@ -48,7 +48,7 @@ const Header = () => {
 
       <div className={`main-nav ${scrolled ? 'nav-scrolled' : ''}`}>
         <div className="container main-nav-inner">
-          <a href="#" className="logo-wrapper">
+          <a href="/" className="logo-wrapper">
             <img src="/logo.png?v=2" alt="Boğaziçi Koleji" className="logo-img" />
             <div className="logo-text">
               <span className="logo-name">BOĞAZİÇİ</span>

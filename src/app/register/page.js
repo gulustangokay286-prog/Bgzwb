@@ -198,28 +198,28 @@ export default function RegisterPage() {
 
                   {/* Rol Seçimi */}
                   <div className="form-group-role">
-                    <label className="form-label">Kayıt Türü Seçin</label>
-                    <div className="role-tabs-row">
+                    <label className="form-label">Kayıt Türü Seçiniz</label>
+                    <div className="role-segmented-control">
                       <button
                         type="button"
                         onClick={() => { setRole('student'); setError(''); }}
-                        className={`role-tab-item ${role === 'student' ? 'active' : ''}`}
+                        className={`role-seg-btn ${role === 'student' ? 'active' : ''}`}
                       >
-                        🎓 Öğrenci
+                        Öğrenci
                       </button>
                       <button
                         type="button"
                         onClick={() => { setRole('teacher'); setError(''); }}
-                        className={`role-tab-item ${role === 'teacher' ? 'active' : ''}`}
+                        className={`role-seg-btn ${role === 'teacher' ? 'active' : ''}`}
                       >
-                        👨‍🏫 Öğretmen
+                        Öğretmen
                       </button>
                       <button
                         type="button"
                         onClick={() => { setRole('parent'); setError(''); }}
-                        className={`role-tab-item ${role === 'parent' ? 'active' : ''}`}
+                        className={`role-seg-btn ${role === 'parent' ? 'active' : ''}`}
                       >
-                        👨‍👩‍👧 Veli
+                        Veli
                       </button>
                     </div>
                   </div>
@@ -513,33 +513,37 @@ export default function RegisterPage() {
         .form-group-role {
           margin-bottom: 24px;
         }
-        .role-tabs-row {
-          display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
-          gap: 8px;
-          background: #f1f3f5;
+        .role-segmented-control {
+          display: flex;
+          background: #f1f5f9;
           padding: 5px;
-          border-radius: 8px;
+          border-radius: 10px;
+          border: 1px solid #e2e8f0;
+          gap: 4px;
         }
-        .role-tab-item {
-          padding: 11px 8px;
+        .role-seg-btn {
+          flex: 1;
+          padding: 10px 0;
           border: none;
           background: transparent;
           font-size: 0.92rem;
-          font-weight: 700;
-          color: #6c757d;
-          border-radius: 6px;
+          font-weight: 600;
+          color: #64748b;
+          border-radius: 7px;
           cursor: pointer;
           transition: all 0.2s ease;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 6px;
         }
-        .role-tab-item.active {
-          background: #103A69;
-          color: #ffffff;
-          box-shadow: 0 2px 6px rgba(16, 58, 105, 0.25);
+        .role-seg-btn:hover {
+          color: #103A69;
+        }
+        .role-seg-btn.active {
+          background: #ffffff;
+          color: #103A69;
+          font-weight: 700;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
         }
         .register-info-notice {
           background: #e8f0fe;
