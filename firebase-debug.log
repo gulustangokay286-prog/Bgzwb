@@ -1,0 +1,136 @@
+[debug] [2026-08-24T10:26:16.215Z] ----------------------------------------------------------------------
+[debug] [2026-08-24T10:26:16.216Z] Command:       /usr/local/bin/node /Users/fookay/.npm/_npx/7750544ccf494d8b/node_modules/.bin/firebase deploy --only hosting --project bgz-mobil
+[debug] [2026-08-24T10:26:16.216Z] CLI Version:   15.28.1
+[debug] [2026-08-24T10:26:16.216Z] Platform:      darwin
+[debug] [2026-08-24T10:26:16.216Z] Node Version:  v26.4.0
+[debug] [2026-08-24T10:26:16.216Z] Detected Agent: antigravity
+[debug] [2026-08-24T10:26:16.216Z] Time:          Mon Aug 24 2026 13:26:16 GMT+0300 (Türkiye Standard Time)
+[debug] [2026-08-24T10:26:16.217Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-08-24T10:26:16.787Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-08-24T10:26:16.787Z] > authorizing via signed-in user (gulustangokay286@gmail.com)
+[debug] [2026-08-24T10:26:16.787Z] [iam] checking project bgz-mobil for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2026-08-24T10:26:16.793Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:16.793Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:16.794Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/bgz-mobil:testIamPermissions [none]
+[debug] [2026-08-24T10:26:16.794Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/bgz-mobil:testIamPermissions  x-goog-user-project=bgz-mobil
+[debug] [2026-08-24T10:26:16.794Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/bgz-mobil:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-08-24T10:26:17.760Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/bgz-mobil:testIamPermissions 200
+[debug] [2026-08-24T10:26:17.760Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/bgz-mobil:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-08-24T10:26:17.761Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:17.761Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:17.761Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/bgz-mobil [none]
+[debug] [2026-08-24T10:26:18.204Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/bgz-mobil 200
+[debug] [2026-08-24T10:26:18.204Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/bgz-mobil {"projectId":"bgz-mobil","projectNumber":"945060715279","displayName":"BGZ Mobil","name":"projects/bgz-mobil","resources":{"hostingSite":"bgz-mobil","realtimeDatabaseInstance":"bgz-mobil-default-rtdb"},"state":"ACTIVE","labels":{"firebase":"enabled"},"etag":"1_76cb23a8-6dd5-489b-be6d-0f5ea00bbc8c"}
+[info] 
+[info] === Deploying to 'bgz-mobil'...
+[info] 
+[info] i  deploying hosting 
+[debug] [2026-08-24T10:26:18.206Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:18.206Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:18.206Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/bgz-mobil/sites/bgz-mobil [none]
+[debug] [2026-08-24T10:26:19.372Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/bgz-mobil/sites/bgz-mobil 200
+[debug] [2026-08-24T10:26:19.372Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/bgz-mobil/sites/bgz-mobil {"name":"projects/bgz-mobil/sites/bgz-mobil","defaultUrl":"https://bgz-mobil.web.app","type":"DEFAULT_SITE"}
+[debug] [2026-08-24T10:26:19.373Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:19.373Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:19.374Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/bgz-mobil/versions [none]
+[debug] [2026-08-24T10:26:19.374Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/bgz-mobil/versions {"status":"CREATED","labels":{"deployment-tool":"cli-firebase"}}
+[debug] [2026-08-24T10:26:21.120Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/bgz-mobil/versions 200
+[debug] [2026-08-24T10:26:21.120Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/bgz-mobil/versions {"name":"projects/945060715279/sites/bgz-mobil/versions/29e8c233a7c5bd34","status":"CREATED","config":{},"labels":{"deployment-tool":"cli-firebase"}}
+[info] i  hosting[bgz-mobil]: beginning deploy... 
+[info] i  hosting[bgz-mobil]: found 50 files in out 
+[debug] [2026-08-24T10:26:21.132Z] [hosting] uploading with 200 concurrency
+[debug] [2026-08-24T10:26:21.174Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:21.174Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:21.175Z] [hosting] hash cache [b3V0] stored for 50 files
+[debug] [2026-08-24T10:26:21.175Z] [hosting][hash queue][FINAL] {"max":38,"min":9,"avg":13.000000000000002,"active":0,"complete":50,"success":50,"errored":0,"retried":0,"total":50,"elapsed":43}
+[debug] [2026-08-24T10:26:21.175Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/945060715279/sites/bgz-mobil/versions/29e8c233a7c5bd34:populateFiles [none]
+[debug] [2026-08-24T10:26:21.175Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/945060715279/sites/bgz-mobil/versions/29e8c233a7c5bd34:populateFiles {"files":{"/window.svg":"bf07bc7ddc1ae03e7936a9347de10e85cf9a0e51f99bd8293b2a8eeca6463b49","/vercel.svg":"ffb3d6634c37da9451d60557ed0e6e513e2889672e0bf202d2558062062a048a","/index.txt":"93a3427a5b626e04a6d1385c6a40e62538b96f67aff096d13831c05b24e0ef48","/icons.svg":"cc5ba1c58a9496115441b46650182deb0169982e8a98d605d965ce966ff37184","/globe.svg":"914fe1f576f68698d9e329ea8ec6c542d8d5f150af08f1a360d188fed7597c23","/file.svg":"cb6477bad43c44ba222b8cddfa7e4fe646b19ec7449646e8c2a426354faa630e","/index.html":"51e979669189a569f7b667c1b630c8e0697137a107a54a0d1f4c402efea7858f","/__next._tree.txt":"4daed8cbcbb4c46a6915ce69f3aab6a717e66c8833bfb88b8a09195acbc6d3f0","/next.svg":"7b16665552cb47db34db342505d6d340caaf5813ca2cba1df3536ed67ea33f64","/__next._full.txt":"93a3427a5b626e04a6d1385c6a40e62538b96f67aff096d13831c05b24e0ef48","/__next.__PAGE__.txt":"69eae049d8772d21cd562810898688093c29262f9de7685db2e46e7f33c77bc4","/404.html":"928b5f5b46b192468758d8b2de1e258670e6a39a7496804626cb97fa1b923b33","/register/__next._tree.txt":"7464bd1b32abdab73d02f02079071a912fb94f80282819363813c0b17b9338d7","/register/index.txt":"f7ab4993d077c1238c254747b5c82cefa788b645c5357632b85ee66d5e4725fe","/register/__next._full.txt":"f7ab4993d077c1238c254747b5c82cefa788b645c5357632b85ee66d5e4725fe","/qr/__next._tree.txt":"b33c5d00e9a24fd47808f7e73f07bebabbd1b66b5784e3f02e9e6570e9888031","/qr/index.txt":"e44bbc2e3ed15e20a4377130dde4c0da476ab9a214cbd66d8196a856dc93b09b","/register/index.html":"8571446b9e6d6cf5bac939c0c9c3abf600c887d07308ea7337b3a434d0265727","/qr/__next._full.txt":"e44bbc2e3ed15e20a4377130dde4c0da476ab9a214cbd66d8196a856dc93b09b","/register/__next.register.__PAGE__.txt":"587178f79272127605741a429422783ccb8cce9664a8514cf1dd87c28e6e4518","/qr/__next.qr.__PAGE__.txt":"3468b32c6d0eb13e39e86c1bbb936f4e3734e17b9fa750cd0b52f7c590094759","/qr/index.html":"11b085c86d8771f10c228983a03b807bcc5e6974d039e44c3739729f494b3f77","/_not-found/index.txt":"56873aff9e7f0aaca242574496e9e9950f9a60c44e991ada4796c9be74991536","/_not-found/__next._tree.txt":"082fb840ca069f6c491f1a0a42c2178467ce655a72dec00703ad3d906ec68c07","/_not-found/__next._full.txt":"56873aff9e7f0aaca242574496e9e9950f9a60c44e991ada4796c9be74991536","/_not-found/index.html":"928b5f5b46b192468758d8b2de1e258670e6a39a7496804626cb97fa1b923b33","/_next/static/chunks/turbopack-345ikx3ywc2sn.js":"8da258eff868bc7a6e6df39707a620fd09455328f85e15ad295d3b72dc07bf5f","/_next/static/chunks/3fntmmi971322.js":"04377fa8ec34e92477c4fe2324474c42c9f9c00e2d1a9b22f055c713cafacbe1","/_next/static/chunks/2uodu0u1x6ksc.css":"61c25737b9f0ce91557f5a1ec5a6ac09f202d80b786733d8f47fe81952ffec84","/_not-found/__next._not-found.__PAGE__.txt":"c880bcc810e09f7014a960eb1404a81cd1dd25a18990ec113080085c88ade675","/favicon.ico":"8b9c4dce3353938d2027ab21f0489807587db05d65ef390a6947d32312e501a0","/_next/static/chunks/2-xwlmnlyaeq1.js":"3c3fa99ce8722b40a5c4392fd9084a13d34f38cef4e28e2d1bd72f11fa0d381a","/_next/static/chunks/1chhu-u6hnd-i.js":"b338187b7b17c96e30dc966c55d51502bc1218be38360e420ce0bb267173f828","/_next/static/media/favicon.2vob68tjqpejf.ico":"8b9c4dce3353938d2027ab21f0489807587db05d65ef390a6947d32312e501a0","/_next/static/chunks/16cxv_nffgjfp.css":"7e19f17e5f6524e0a16fde6082f04a29694e43cb54b40bb47dc1c81cad2adde7","/_next/static/RI-KcUgdSLZWPnccakaEn/_ssgManifest.js":"02dbc1aeab6ef0a6ff2ff9a1643158cf9bb38929945eaa343a3627dee9ba6778","/_next/static/chunks/05uuucs6cwxm0.js":"755a1605a5bf01625f5631134609ca0171c417d0c53bea677a66be9687fa603d","/_next/static/RI-KcUgdSLZWPnccakaEn/_buildManifest.js":"30ef2ac8f5c7eb81cae36ed0e00068cbbdf1fe45eaa179abe62d8e5cbcb54834","/_next/static/RI-KcUgdSLZWPnccakaEn/_clientMiddlewareManifest.js":"111d6778f1ad49c6d53d2afe18b83896c7f0692e57e7c959628d3b90d187a887","/404/index.html":"928b5f5b46b192468758d8b2de1e258670e6a39a7496804626cb97fa1b923b33","/_next/static/chunks/2jxze94-m-hma.js":"2eaa00713eb310b6ebd33faf134bcf97e60c49a4c89510dfe45aee0511b7ee0d","/_next/static/chunks/0cz1d0mv5g_q7.js":"67dee1c02c6a6700d63b5c1898cf2df618101a68a395db469192763d24925a23","/_next/static/chunks/121kzsby_2vms.js":"d83873717e0345259161deeaf58c4c82694dff19ca79827723249e6277745c23","/_next/static/chunks/36lm--m0zwqtj.js":"dd657169d835f395499ec053acd1de4177758f976093f179af14addcead8e03a","/logo.png":"307f04a30265ee16261cbce01b485abce0e36b3e743ade50d7dca4b9eee70b62","/favicon.png":"307f04a30265ee16261cbce01b485abce0e36b3e743ade50d7dca4b9eee70b62","/clay_warning.png":"ae63986e1d48d18922bd32dc04b45e636f6d0563f9aa2b277dafd35637db9c91","/values-student.png":"98cfa038b2c577ccd7749a049b8aa011bb22ca1d4d0cebc8f8687843cdea7017","/hero-bg.png":"33c00372bfe577a80626c968780dca96dc4d89b74cacd9e34a15556b16c3ea46","/_next/static/chunks/0-ohb678_f_jy.js":"e6df3e228add176c32bbb0c11dd35771fecb0fffd9268ca80c02995a8e0c2447"}}
+[debug] [2026-08-24T10:26:22.150Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/945060715279/sites/bgz-mobil/versions/29e8c233a7c5bd34:populateFiles 200
+[debug] [2026-08-24T10:26:22.150Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/945060715279/sites/bgz-mobil/versions/29e8c233a7c5bd34:populateFiles {"uploadRequiredHashes":["d83873717e0345259161deeaf58c4c82694dff19ca79827723249e6277745c23","082fb840ca069f6c491f1a0a42c2178467ce655a72dec00703ad3d906ec68c07","f7ab4993d077c1238c254747b5c82cefa788b645c5357632b85ee66d5e4725fe","b338187b7b17c96e30dc966c55d51502bc1218be38360e420ce0bb267173f828","dd657169d835f395499ec053acd1de4177758f976093f179af14addcead8e03a","3468b32c6d0eb13e39e86c1bbb936f4e3734e17b9fa750cd0b52f7c590094759","e44bbc2e3ed15e20a4377130dde4c0da476ab9a214cbd66d8196a856dc93b09b","69eae049d8772d21cd562810898688093c29262f9de7685db2e46e7f33c77bc4","4daed8cbcbb4c46a6915ce69f3aab6a717e66c8833bfb88b8a09195acbc6d3f0","51e979669189a569f7b667c1b630c8e0697137a107a54a0d1f4c402efea7858f","11b085c86d8771f10c228983a03b807bcc5e6974d039e44c3739729f494b3f77","c880bcc810e09f7014a960eb1404a81cd1dd25a18990ec113080085c88ade675","7464bd1b32abdab73d02f02079071a912fb94f80282819363813c0b17b9338d7","93a3427a5b626e04a6d1385c6a40e62538b96f67aff096d13831c05b24e0ef48","928b5f5b46b192468758d8b2de1e258670e6a39a7496804626cb97fa1b923b33","56873aff9e7f0aaca242574496e9e9950f9a60c44e991ada4796c9be74991536","3c3fa99ce8722b40a5c4392fd9084a13d34f38cef4e28e2d1bd72f11fa0d381a","8571446b9e6d6cf5bac939c0c9c3abf600c887d07308ea7337b3a434d0265727","b33c5d00e9a24fd47808f7e73f07bebabbd1b66b5784e3f02e9e6570e9888031","8da258eff868bc7a6e6df39707a620fd09455328f85e15ad295d3b72dc07bf5f","587178f79272127605741a429422783ccb8cce9664a8514cf1dd87c28e6e4518"],"uploadUrl":"https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files"}
+[debug] [2026-08-24T10:26:22.150Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.150Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.150Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.150Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.150Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.150Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.150Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.150Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] Checked if tokens are valid: true, expires at: 1787569836075
+[debug] [2026-08-24T10:26:22.151Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/d83873717e0345259161deeaf58c4c82694dff19ca79827723249e6277745c23 [none]
+[debug] [2026-08-24T10:26:22.152Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/d83873717e0345259161deeaf58c4c82694dff19ca79827723249e6277745c23 [stream]
+[debug] [2026-08-24T10:26:22.152Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/082fb840ca069f6c491f1a0a42c2178467ce655a72dec00703ad3d906ec68c07 [none]
+[debug] [2026-08-24T10:26:22.152Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/082fb840ca069f6c491f1a0a42c2178467ce655a72dec00703ad3d906ec68c07 [stream]
+[debug] [2026-08-24T10:26:22.153Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/f7ab4993d077c1238c254747b5c82cefa788b645c5357632b85ee66d5e4725fe [none]
+[debug] [2026-08-24T10:26:22.153Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/f7ab4993d077c1238c254747b5c82cefa788b645c5357632b85ee66d5e4725fe [stream]
+[debug] [2026-08-24T10:26:22.153Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/b338187b7b17c96e30dc966c55d51502bc1218be38360e420ce0bb267173f828 [none]
+[debug] [2026-08-24T10:26:22.153Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/b338187b7b17c96e30dc966c55d51502bc1218be38360e420ce0bb267173f828 [stream]
+[debug] [2026-08-24T10:26:22.153Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/dd657169d835f395499ec053acd1de4177758f976093f179af14addcead8e03a [none]
+[debug] [2026-08-24T10:26:22.153Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/dd657169d835f395499ec053acd1de4177758f976093f179af14addcead8e03a [stream]
+[debug] [2026-08-24T10:26:22.153Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/3468b32c6d0eb13e39e86c1bbb936f4e3734e17b9fa750cd0b52f7c590094759 [none]
+[debug] [2026-08-24T10:26:22.153Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/3468b32c6d0eb13e39e86c1bbb936f4e3734e17b9fa750cd0b52f7c590094759 [stream]
+[debug] [2026-08-24T10:26:22.154Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/e44bbc2e3ed15e20a4377130dde4c0da476ab9a214cbd66d8196a856dc93b09b [none]
+[debug] [2026-08-24T10:26:22.154Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/e44bbc2e3ed15e20a4377130dde4c0da476ab9a214cbd66d8196a856dc93b09b [stream]
+[debug] [2026-08-24T10:26:22.154Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/69eae049d8772d21cd562810898688093c29262f9de7685db2e46e7f33c77bc4 [none]
+[debug] [2026-08-24T10:26:22.154Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/69eae049d8772d21cd562810898688093c29262f9de7685db2e46e7f33c77bc4 [stream]
+[debug] [2026-08-24T10:26:22.154Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/4daed8cbcbb4c46a6915ce69f3aab6a717e66c8833bfb88b8a09195acbc6d3f0 [none]
+[debug] [2026-08-24T10:26:22.154Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/4daed8cbcbb4c46a6915ce69f3aab6a717e66c8833bfb88b8a09195acbc6d3f0 [stream]
+[debug] [2026-08-24T10:26:22.154Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/51e979669189a569f7b667c1b630c8e0697137a107a54a0d1f4c402efea7858f [none]
+[debug] [2026-08-24T10:26:22.154Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/51e979669189a569f7b667c1b630c8e0697137a107a54a0d1f4c402efea7858f [stream]
+[debug] [2026-08-24T10:26:22.154Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/11b085c86d8771f10c228983a03b807bcc5e6974d039e44c3739729f494b3f77 [none]
+[debug] [2026-08-24T10:26:22.154Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/11b085c86d8771f10c228983a03b807bcc5e6974d039e44c3739729f494b3f77 [stream]
+[debug] [2026-08-24T10:26:22.154Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/c880bcc810e09f7014a960eb1404a81cd1dd25a18990ec113080085c88ade675 [none]
+[debug] [2026-08-24T10:26:22.154Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/c880bcc810e09f7014a960eb1404a81cd1dd25a18990ec113080085c88ade675 [stream]
+[debug] [2026-08-24T10:26:22.154Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/7464bd1b32abdab73d02f02079071a912fb94f80282819363813c0b17b9338d7 [none]
+[debug] [2026-08-24T10:26:22.154Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/7464bd1b32abdab73d02f02079071a912fb94f80282819363813c0b17b9338d7 [stream]
+[debug] [2026-08-24T10:26:22.154Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/93a3427a5b626e04a6d1385c6a40e62538b96f67aff096d13831c05b24e0ef48 [none]
+[debug] [2026-08-24T10:26:22.154Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/93a3427a5b626e04a6d1385c6a40e62538b96f67aff096d13831c05b24e0ef48 [stream]
+[debug] [2026-08-24T10:26:22.154Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/928b5f5b46b192468758d8b2de1e258670e6a39a7496804626cb97fa1b923b33 [none]
+[debug] [2026-08-24T10:26:22.154Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/928b5f5b46b192468758d8b2de1e258670e6a39a7496804626cb97fa1b923b33 [stream]
+[debug] [2026-08-24T10:26:22.155Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/56873aff9e7f0aaca242574496e9e9950f9a60c44e991ada4796c9be74991536 [none]
+[debug] [2026-08-24T10:26:22.155Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/56873aff9e7f0aaca242574496e9e9950f9a60c44e991ada4796c9be74991536 [stream]
+[debug] [2026-08-24T10:26:22.155Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/3c3fa99ce8722b40a5c4392fd9084a13d34f38cef4e28e2d1bd72f11fa0d381a [none]
+[debug] [2026-08-24T10:26:22.155Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/3c3fa99ce8722b40a5c4392fd9084a13d34f38cef4e28e2d1bd72f11fa0d381a [stream]
+[debug] [2026-08-24T10:26:22.155Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/8571446b9e6d6cf5bac939c0c9c3abf600c887d07308ea7337b3a434d0265727 [none]
+[debug] [2026-08-24T10:26:22.155Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/8571446b9e6d6cf5bac939c0c9c3abf600c887d07308ea7337b3a434d0265727 [stream]
+[debug] [2026-08-24T10:26:22.155Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/b33c5d00e9a24fd47808f7e73f07bebabbd1b66b5784e3f02e9e6570e9888031 [none]
+[debug] [2026-08-24T10:26:22.155Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/b33c5d00e9a24fd47808f7e73f07bebabbd1b66b5784e3f02e9e6570e9888031 [stream]
+[debug] [2026-08-24T10:26:22.155Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/8da258eff868bc7a6e6df39707a620fd09455328f85e15ad295d3b72dc07bf5f [none]
+[debug] [2026-08-24T10:26:22.155Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/8da258eff868bc7a6e6df39707a620fd09455328f85e15ad295d3b72dc07bf5f [stream]
+[debug] [2026-08-24T10:26:22.155Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/587178f79272127605741a429422783ccb8cce9664a8514cf1dd87c28e6e4518 [none]
+[debug] [2026-08-24T10:26:22.155Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/bgz-mobil/versions/29e8c233a7c5bd34/files/587178f79272127605741a429422783ccb8cce9664a8514cf1dd87c28e6e4518 [stream]
+[debug] [2026-08-24T10:26:22.159Z] [hosting][populate queue][FINAL] {"max":977,"min":977,"avg":977,"active":0,"complete":1,"success":1,"errored":0,"retried":0,"total":1,"elapsed":985}
+[debug] [2026-08-24T10:26:22.159Z] [hosting] uploads queued: 21

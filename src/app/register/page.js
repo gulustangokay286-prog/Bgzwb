@@ -10,10 +10,6 @@ import Script from 'next/script';
 
 
 
-export const metadata = {
-  title: 'Kayıt Ol | Boğaziçi Koleji',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0'
-};
 
 export default function RegisterPage() {
   const [role, setRole] = useState('student');
