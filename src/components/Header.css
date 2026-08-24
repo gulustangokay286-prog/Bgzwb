@@ -239,3 +239,44 @@
   .logo-img { height: 40px; }
   .logo-sub { font-size: 0.55rem; }
 }
+
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+.nav-register-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  background: var(--blue-main);
+  color: var(--white);
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  flex-shrink: 0;
+}
+.nav-register-btn:hover {
+  background: var(--blue-mid);
+}
+
+@media (max-width: 768px) {
+  .nav-register-btn {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    white-space: nowrap !important;
+    flex-shrink: 0;
+  }
+  .nav-actions {
+    gap: 8px;
+  }
+}

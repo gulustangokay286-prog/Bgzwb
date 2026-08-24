@@ -1,63 +1,151 @@
 "use client";
 import React, { useState } from 'react';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { createUserWithEmailAndPassword, signOut } from 'firebase/auth';
+import { collection, query, where, getDocs, limit, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../../firebase';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 
 export default function RegisterPage() {
   const [role, setRole] = useState('student');
+  
+  // Ortak Alanlar
   const [name, setName] = useState('');
   const [tcKimlik, setTcKimlik] = useState('');
-  const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  
+  // Öğrenci Alanları
+  const [schoolNumber, setSchoolNumber] = useState('');
+  const [classId, setClassId] = useState('9');
+  
+  // Öğretmen Alanları
+  const [branch, setBranch] = useState('Matematik');
+  const [phone, setPhone] = useState('');
+  
+  // Veli Alanları
+  const [childName, setChildName] = useState('');
+  const [childSchoolNumber, setChildSchoolNumber] = useState('');
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  const availableClasses = ["9", "10", "11", "12"];
+  const availableBranches = [
+    "Matematik", "Fizik", "Kimya", "Biyoloji",
+    "Türkçe", "Edebiyat", "Tarih", "Coğrafya",
+    "İngilizce", "Beden Eğitimi"
+  ];
+
   const handleRegister = async (e) => {
     e.preventDefault();
-    if (!email || !password || !name || !tcKimlik) {
-      setError('Lütfen tüm zorunlu alanları doldurunuz.');
+    
+    // Doğrulamalar (Swift ViewModel ile 1:1 aynı)
+    if (!name.trim()) {
+      setError('Lütfen adınızı ve soyadınızı giriniz.');
       return;
     }
-    if (tcKimlik.length !== 11) {
-      setError('T.C. Kimlik numarası 11 haneli olmalıdır.');
+    if (tcKimlik.trim().length !== 11) {
+      setError('TC Kimlik No tam 11 haneli olmalıdır.');
+      return;
+    }
+    if (!email.trim() || !email.includes('@')) {
+      setError('Lütfen geçerli bir e-posta adresi giriniz.');
       return;
     }
     if (password.length < 6) {
-      setError('Şifre en az 6 karakter olmalıdır.');
+      setError('Şifreniz en az 6 karakter olmalıdır.');
       return;
     }
-    
+
+    if (role === 'student' && !schoolNumber.trim()) {
+      setError('Lütfen okul numaranızı giriniz.');
+      return;
+    }
+    if (role === 'teacher' && !phone.trim()) {
+      setError('Lütfen telefon numaranızı giriniz.');
+      return;
+    }
+    if (role === 'parent' && (!childName.trim() || !childSchoolNumber.trim())) {
+      setError('Lütfen çocuğunuzun bilgilerini eksiksiz giriniz.');
+      return;
+    }
+
     setError('');
     setSuccess('');
     setLoading(true);
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email.trim().toLowerCase(), password);
-      const user = userCredential.user;
+      // 1. TC Kimlik mükerrer kontrolü
+      const existingUserSnap = await getDocs(
+        query(collection(db, 'users'), where('tc_kimlik', '==', tcKimlik.trim()), limit(1))
+      );
+      if (!existingUserSnap.empty) {
+        setError('Bu TC Kimlik numarasıyla zaten kayıt olunmuş.');
+        setLoading(false);
+        return;
+      }
 
-      const userDocRef = doc(db, 'users', user.uid);
-      await setDoc(userDocRef, {
+      // 2. Öğrenci okul no mükerrer kontrolü
+      if (role === 'student' && schoolNumber.trim()) {
+        const existingStudentSnap = await getDocs(
+          query(collection(db, 'users'), where('school_number', '==', schoolNumber.trim()), limit(1))
+        );
+        if (!existingStudentSnap.empty) {
+          setError('Bu okul numarası zaten sisteme kayıtlı.');
+          setLoading(false);
+          return;
+        }
+      }
+
+      // 3. Firebase Auth Kullanıcı Oluşturma
+      const userCredential = await createUserWithEmailAndPassword(auth, email.trim().toLowerCase(), password);
+      const userId = userCredential.user.uid;
+
+      // 4. Firestore Veri Paketi (Swift ile birebir uyumlu)
+      const userData = {
+        id: userId,
         email: email.trim().toLowerCase(),
-        full_name: name.trim(),
         tc_kimlik: tcKimlik.trim(),
+        full_name: name.trim(),
         role: role,
-        phone: phone.trim(),
         status: 'pending',
-        createdAt: serverTimestamp(),
-        profile_image: '',
-      });
+        created_at: serverTimestamp()
+      };
+
+      if (role === 'student') {
+        userData.school_number = schoolNumber.trim();
+        userData.class_id = classId;
+      } else if (role === 'teacher') {
+        userData.branch = branch;
+        userData.phone = phone.trim();
+      } else if (role === 'parent') {
+        userData.child_name = childName.trim();
+        userData.child_school_number = childSchoolNumber.trim();
+        if (phone.trim()) userData.phone = phone.trim();
+      }
+
+      await setDoc(doc(db, 'users', userId), userData);
+
+      // 5. Otomatik açık kalan oturumu kapat
+      try {
+        await signOut(auth);
+      } catch (err) {
+        console.log("Signout error:", err);
+      }
 
       setSuccess('Kayıt başvurunuz başarıyla alınmıştır. İlgili yönetici onayının ardından hesabınız aktif edilecektir.');
+      
+      // Temizle
       setName('');
       setTcKimlik('');
-      setPhone('');
       setEmail('');
       setPassword('');
+      setSchoolNumber('');
+      setPhone('');
+      setChildName('');
+      setChildSchoolNumber('');
 
     } catch (err) {
       console.error("Kayıt hatası:", err);
@@ -82,9 +170,9 @@ export default function RegisterPage() {
         <div className="container">
           <div className="register-header-block">
             <span className="register-top-tag">BOĞAZİÇİ EĞİTİM KURUMLARI</span>
-            <h1 className="register-page-title">Kullanıcı Kayıt Başvurusu</h1>
+            <h1 className="register-page-title">Yeni Kullanıcı Kayıt Formu</h1>
             <p className="register-page-desc">
-              Öğrenci, veli veya öğretmen portalına erişim sağlamak için lütfen aşağıdaki formu eksiksiz doldurunuz.
+              Öğrenci, veli veya öğretmen portalına erişim sağlamak için lütfen bilgilerinizi eksiksiz doldurunuz.
             </p>
           </div>
 
@@ -93,7 +181,7 @@ export default function RegisterPage() {
               {success ? (
                 <div className="register-success-state">
                   <div className="success-icon-badge">✓</div>
-                  <h2>Başvurunuz Alındı</h2>
+                  <h2>Kayıt Başvurunuz Alındı</h2>
                   <p>{success}</p>
                   <a href="/" className="btn btn-blue" style={{ marginTop: '20px' }}>
                     Ana Sayfaya Dön
@@ -108,33 +196,35 @@ export default function RegisterPage() {
                     </div>
                   )}
 
+                  {/* Rol Seçimi */}
                   <div className="form-group-role">
-                    <label className="form-label">Kullanıcı Türü</label>
+                    <label className="form-label">Kayıt Türü Seçin</label>
                     <div className="role-tabs-row">
                       <button
                         type="button"
-                        onClick={() => setRole('student')}
+                        onClick={() => { setRole('student'); setError(''); }}
                         className={`role-tab-item ${role === 'student' ? 'active' : ''}`}
                       >
-                        Öğrenci
+                        🎓 Öğrenci
                       </button>
                       <button
                         type="button"
-                        onClick={() => setRole('parent')}
-                        className={`role-tab-item ${role === 'parent' ? 'active' : ''}`}
-                      >
-                        Veli
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setRole('teacher')}
+                        onClick={() => { setRole('teacher'); setError(''); }}
                         className={`role-tab-item ${role === 'teacher' ? 'active' : ''}`}
                       >
-                        Öğretmen
+                        👨‍🏫 Öğretmen
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setRole('parent'); setError(''); }}
+                        className={`role-tab-item ${role === 'parent' ? 'active' : ''}`}
+                      >
+                        👨‍👩‍👧 Veli
                       </button>
                     </div>
                   </div>
 
+                  {/* Ortak Alanlar */}
                   <div className="form-row-2col">
                     <div className="form-field">
                       <label className="form-label" htmlFor="reg-fullname">
@@ -143,7 +233,7 @@ export default function RegisterPage() {
                       <input
                         id="reg-fullname"
                         type="text"
-                        placeholder="Örn: Ahmet Yılmaz"
+                        placeholder="Adınız ve Soyadınız"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         required
@@ -159,7 +249,7 @@ export default function RegisterPage() {
                         type="text"
                         maxLength={11}
                         inputMode="numeric"
-                        placeholder="11 Haneli T.C. No"
+                        placeholder="11 Haneli T.C. Kimlik Numaranız"
                         value={tcKimlik}
                         onChange={(e) => setTcKimlik(e.target.value.replace(/[^0-9]/g, ''))}
                         required
@@ -175,7 +265,7 @@ export default function RegisterPage() {
                       <input
                         id="reg-email"
                         type="email"
-                        placeholder="ornek@domain.com"
+                        placeholder="ornek@eposta.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
@@ -183,36 +273,139 @@ export default function RegisterPage() {
                     </div>
 
                     <div className="form-field">
-                      <label className="form-label" htmlFor="reg-phone">
-                        Telefon Numarası
+                      <label className="form-label" htmlFor="reg-password">
+                        Şifre Belirleyin <span className="required-star">*</span>
                       </label>
                       <input
-                        id="reg-phone"
-                        type="tel"
-                        placeholder="0 (5XX) XXX XX XX"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
+                        id="reg-password"
+                        type="password"
+                        placeholder="En az 6 karakter"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
                       />
                     </div>
                   </div>
 
-                  <div className="form-field">
-                    <label className="form-label" htmlFor="reg-password">
-                      Şifre Belirleyin <span className="required-star">*</span>
-                    </label>
-                    <input
-                      id="reg-password"
-                      type="password"
-                      placeholder="En az 6 karakterli güvenli şifre"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                  </div>
+                  {/* Role Göre Değişen Dinamik Alanlar */}
+                  {role === 'student' && (
+                    <div className="form-row-2col role-specific-row">
+                      <div className="form-field">
+                        <label className="form-label" htmlFor="reg-school-no">
+                          Okul Numarası <span className="required-star">*</span>
+                        </label>
+                        <input
+                          id="reg-school-no"
+                          type="text"
+                          placeholder="Örn: 2025001"
+                          value={schoolNumber}
+                          onChange={(e) => setSchoolNumber(e.target.value.replace(/[^0-9]/g, ''))}
+                          required
+                        />
+                      </div>
+
+                      <div className="form-field">
+                        <label className="form-label" htmlFor="reg-class">
+                          Sınıf Düzeyi <span className="required-star">*</span>
+                        </label>
+                        <select
+                          id="reg-class"
+                          className="form-select"
+                          value={classId}
+                          onChange={(e) => setClassId(e.target.value)}
+                        >
+                          {availableClasses.map((c) => (
+                            <option key={c} value={c}>{c}. Sınıf</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
+                  {role === 'teacher' && (
+                    <div className="form-row-2col role-specific-row">
+                      <div className="form-field">
+                        <label className="form-label" htmlFor="reg-branch">
+                          Branş <span className="required-star">*</span>
+                        </label>
+                        <select
+                          id="reg-branch"
+                          className="form-select"
+                          value={branch}
+                          onChange={(e) => setBranch(e.target.value)}
+                        >
+                          {availableBranches.map((b) => (
+                            <option key={b} value={b}>{b}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="form-field">
+                        <label className="form-label" htmlFor="reg-phone">
+                          Telefon Numarası <span className="required-star">*</span>
+                        </label>
+                        <input
+                          id="reg-phone"
+                          type="tel"
+                          placeholder="05XX XXX XX XX"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, '').slice(0, 11))}
+                          required
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {role === 'parent' && (
+                    <>
+                      <div className="form-row-2col role-specific-row">
+                        <div className="form-field">
+                          <label className="form-label" htmlFor="reg-child-name">
+                            Çocuğun Adı Soyadı <span className="required-star">*</span>
+                          </label>
+                          <input
+                            id="reg-child-name"
+                            type="text"
+                            placeholder="Öğrencinin adı ve soyadı"
+                            value={childName}
+                            onChange={(e) => setChildName(e.target.value)}
+                            required
+                          />
+                        </div>
+
+                        <div className="form-field">
+                          <label className="form-label" htmlFor="reg-child-no">
+                            Çocuğun Okul Numarası <span className="required-star">*</span>
+                          </label>
+                          <input
+                            id="reg-child-no"
+                            type="text"
+                            placeholder="Öğrencinizin okul numarası"
+                            value={childSchoolNumber}
+                            onChange={(e) => setChildSchoolNumber(e.target.value.replace(/[^0-9]/g, ''))}
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="form-field">
+                        <label className="form-label" htmlFor="reg-parent-phone">
+                          Veli Telefon Numarası
+                        </label>
+                        <input
+                          id="reg-parent-phone"
+                          type="tel"
+                          placeholder="05XX XXX XX XX (İsteğe Bağlı)"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, '').slice(0, 11))}
+                        />
+                      </div>
+                    </>
+                  )}
 
                   <div className="register-info-notice">
                     <p>
-                      <strong>Bilgi:</strong> Kaydınız tamamlandıktan sonra kurum idaresi tarafından onaylanacak ve profiliniz eşleştirilecektir.
+                      <strong>Kurumsal Güvenlik:</strong> Kayıt başvurunuz tamamlandıktan sonra kurum idaresi tarafından incelenecek ve onaylandığında erişim yetkiniz açılacaktır.
                     </p>
                   </div>
 
@@ -221,7 +414,7 @@ export default function RegisterPage() {
                     disabled={loading}
                     className="btn btn-blue register-submit-btn"
                   >
-                    {loading ? 'İşleminiz Yapılıyor...' : 'Kayıt Başvurusunu Gönder →'}
+                    {loading ? 'Kaydınız İşleniyor...' : 'Kayıt Başvurusunu Tamamla →'}
                   </button>
                 </form>
               )}
@@ -241,7 +434,7 @@ export default function RegisterPage() {
         }
         .register-main-content {
           flex: 1;
-          padding: 60px 0 80px 0;
+          padding: 50px 0 80px 0;
         }
         .register-header-block {
           text-align: center;
@@ -300,7 +493,7 @@ export default function RegisterPage() {
         .form-field {
           margin-bottom: 16px;
         }
-        .form-field input {
+        .form-field input, .form-select {
           width: 100%;
           padding: 12px 16px;
           border: 1px solid #dee2e6;
@@ -312,7 +505,7 @@ export default function RegisterPage() {
           transition: all 0.2s ease;
           font-family: inherit;
         }
-        .form-field input:focus {
+        .form-field input:focus, .form-select:focus {
           border-color: #103A69;
           background: #ffffff;
           box-shadow: 0 0 0 3px rgba(16, 58, 105, 0.1);
@@ -325,43 +518,47 @@ export default function RegisterPage() {
           grid-template-columns: 1fr 1fr 1fr;
           gap: 8px;
           background: #f1f3f5;
-          padding: 4px;
+          padding: 5px;
           border-radius: 8px;
         }
         .role-tab-item {
-          padding: 10px;
+          padding: 11px 8px;
           border: none;
           background: transparent;
-          font-size: 0.9rem;
-          font-weight: 600;
+          font-size: 0.92rem;
+          font-weight: 700;
           color: #6c757d;
           border-radius: 6px;
           cursor: pointer;
           transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
         }
         .role-tab-item.active {
           background: #103A69;
           color: #ffffff;
-          box-shadow: 0 2px 6px rgba(16, 58, 105, 0.2);
+          box-shadow: 0 2px 6px rgba(16, 58, 105, 0.25);
         }
         .register-info-notice {
           background: #e8f0fe;
           border-left: 4px solid #103A69;
-          padding: 12px 16px;
+          padding: 14px 16px;
           border-radius: 4px;
-          margin-bottom: 24px;
+          margin: 10px 0 24px 0;
         }
         .register-info-notice p {
-          font-size: 0.85rem;
+          font-size: 0.86rem;
           color: #1c528f;
-          line-height: 1.4;
+          line-height: 1.45;
           margin: 0;
         }
         .register-submit-btn {
           width: 100%;
           padding: 14px;
           font-size: 1rem;
-          font-weight: 600;
+          font-weight: 700;
           border-radius: 8px;
           justify-content: center;
         }
@@ -372,7 +569,7 @@ export default function RegisterPage() {
           padding: 12px 16px;
           border-radius: 4px;
           font-size: 0.9rem;
-          font-weight: 500;
+          font-weight: 600;
           margin-bottom: 20px;
           display: flex;
           align-items: center;
@@ -383,11 +580,11 @@ export default function RegisterPage() {
           padding: 20px 0;
         }
         .success-icon-badge {
-          width: 60px;
-          height: 60px;
+          width: 64px;
+          height: 64px;
           background: #e6f4ea;
           color: #137333;
-          font-size: 28px;
+          font-size: 30px;
           font-weight: bold;
           border-radius: 50%;
           display: flex;
