@@ -4,10 +4,16 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../../firebase';
 import { UserCheck, User, Phone, Hash, Lock, Mail, ArrowRight } from 'lucide-react';
-import Head from 'next/head';
+import Script from 'next/script';
 
 
 
+
+
+export const metadata = {
+  title: 'Kayıt Ol | Boğaziçi Koleji',
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0'
+};
 
 export default function RegisterPage() {
   const [role, setRole] = useState('student');
@@ -76,11 +82,9 @@ export default function RegisterPage() {
   };
 
   return (
+    <Script src="https://cdn.tailwindcss.com" strategy="beforeInteractive" />
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
-      <Head>
-        <title>Kayıt Ol | Boğaziçi Koleji</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
-      </Head>
+      
 
       <div className="w-full max-w-md bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
         
