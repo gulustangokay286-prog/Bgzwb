@@ -10,7 +10,7 @@ const Footer = () => {
         <div className="footer-grid">
           <div className="footer-brand">
             <div className="footer-logo-row">
-              <img src="/logo.png?v=2" alt="Boğaziçi Koleji" className="footer-logo" />
+              <img src="/logo.png?v=img4327" alt="Boğaziçi Koleji" className="footer-logo" />
               <div>
                 <span className="footer-name">BOĞAZİÇİ</span>
                 <span className="footer-sub">EĞİTİM KURUMLARI</span>

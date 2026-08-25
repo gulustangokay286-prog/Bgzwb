@@ -36,8 +36,16 @@
 }
 .cta-buttons {
   display: flex;
-  gap: 16px;
+  gap: 14px;
   justify-content: center;
+  align-items: center;
+}
+.cta-buttons .btn {
+  padding: 12px 28px;
+  font-size: 0.95rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  box-shadow: none !important;
 }
 
 @media (max-width: 576px) {

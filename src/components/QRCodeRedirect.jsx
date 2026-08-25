@@ -833,56 +833,350 @@ const QRCodeRedirect = () => {
   const processAttendance = async (foundStudent) => {
     const urlParams = new URLSearchParams(window.location.search);
     const qrType = urlParams.get('type') || 'institution';
-    const currentSessionId = urlParams.get('sessionId') || 'web_fallback';
-    const action = urlParams.get('action') || 'toggle';
+    const sessionId = urlParams.get('sessionId') || 'web_fallback';
+    const nowSec = Math.floor(Date.now() / 1000);
+    const todayStr = new Date().toISOString().split('T')[0];
 
-    setIsVerifying(true);
-    
-    try {
-        const payload = {
-            tc: foundStudent.tc || foundStudent.tc_kimlik || foundStudent.tcNo || foundStudent.tcKimlik || foundStudent.identityNumber,
-            sessionId: currentSessionId,
-            qrType: qrType,
-            action: action,
-            incognitoScore: incognitoScore,
-            clientIp: clientIp || 'unknown',
-            hardwareId: hardwareId || localStorage.getItem('__bgz_hardware_id') || 'unknown',
-            deviceId: hardwareId || localStorage.getItem('__bgz_hardware_id') || 'unknown',
-            stableId: localStorage.getItem('__bgz_stable_id') || 'unknown',
-            deviceOs: osName || 'unknown'
+    let finalMessage = "Yoklamanız başarıyla alındı.";
+    let newStatus = "present";
+    let isSuspicious = false;
+    let suspiciousReason = '';
+
+    // === HARD BLOCK: Incognito tespit edilmişse GEÇİŞ YOK ===
+    if (incognitoScore <= 50) {
+      setPageError("Gizli sekme (incognito/özel tarama) kullanımı tespit edildi. Güvenlik nedeniyle gizli sekmeden yoklama alınamaz. Lütfen normal tarayıcı modunu kullanın.");
+      
+      // Security log yaz
+      try {
+        const todayLog = new Date().toISOString().split('T')[0];
+        await setDoc(doc(db, 'security_logs', `incognito_${todayLog}_${Date.now()}`), {
+          type: 'incognito_blocked',
+          studentId: foundStudent.id,
+          studentName: foundStudent.name,
+          incognitoScore,
+          incognitoFlags,
+          clientIp,
+          hardwareId: localStorage.getItem('__bgz_hardware_id') || 'unknown',
+          message: 'Gizli sekme tespit edildi, giriş engellendi.',
+          timestamp: serverTimestamp()
+        });
+      } catch { /* silent */ }
+      return;
+    }
+
+    if (qrType === 'institution' || qrType === 'kurum' || qrType === 'institution_gate') {
+      const qrAction = urlParams.get('action');
+      
+      // ANTI-CHEAT: Consumed Nonces
+      if (sessionId !== 'web_fallback') {
+        const consumedRef = doc(db, 'consumed_nonces', sessionId);
+        const consumedSnap = await getDoc(consumedRef);
+        if (consumedSnap.exists()) {
+          setPageError("Bu karekod daha önce okutulmuş. Aynı karekod birden fazla kişi tarafından paylaşılamaz.");
+          return;
+        }
+        await setDoc(consumedRef, { consumedAt: serverTimestamp(), studentId: foundStudent.id });
+      }
+
+      // ANTI-CHEAT: Session Lock
+      const sessionRef = doc(db, 'used_qr_sessions', sessionId);
+      const sessionSnap = await getDoc(sessionRef);
+      
+      if (sessionSnap.exists()) {
+        const data = sessionSnap.data();
+        if (data.usedBy !== foundStudent.id) {
+          setPageError("Bu karekod bağlantısı başka bir öğrenci tarafından kullanılmış.");
+          return;
+        }
+      } else if (sessionId !== 'web_fallback') {
+        await setDoc(sessionRef, { usedBy: foundStudent.id, timestamp: serverTimestamp() });
+      }
+
+      // ANTI-CHEAT: Timestamp (60 saniye sınır)
+      const qrTimestamp = parseInt(urlParams.get('timestamp') || "0", 10);
+      const ageSec = nowSec - qrTimestamp;
+      if (qrTimestamp > 0 && ageSec > 60) {
+        setPageError("Bu karekodun süresi dolmuş. Lütfen ekrandaki güncel karekodu okutun.");
+        return;
+      }
+
+      // === V3: COMPOSITE DEVICE LOCK ===
+      let currentDeviceId = localStorage.getItem('__bgz_hardware_id') || localStorage.getItem('__bgz_composite_id');
+      let retries = 0;
+      while (!currentDeviceId && retries < 20) {
+        await new Promise(r => setTimeout(r, 100));
+        currentDeviceId = localStorage.getItem('__bgz_hardware_id') || localStorage.getItem('__bgz_composite_id');
+        retries++;
+      }
+
+      if (!currentDeviceId) {
+        // Cihaz kimliği alınamadı = ENGELLE (honeypot değil)
+        setPageError("Güvenlik Hatası: Cihaz kimliğiniz doğrulanamadı. Tarayıcınızın gizlilik ayarları güvenlik taramasını engelliyor. Normal tarayıcı modunu kullanın.");
+        
+        try {
+          await setDoc(doc(db, 'security_logs', `no_device_${todayStr}_${Date.now()}`), {
+            type: 'no_device_id',
+            studentId: foundStudent.id,
+            clientIp,
+            incognitoScore,
+            message: 'Cihaz kimliği alınamadı, giriş engellendi.',
+            timestamp: serverTimestamp()
+          });
+        } catch { /* silent */ }
+        return;
+      } else {
+        const deviceLockRef = doc(db, 'device_locks', `${todayStr}_${currentDeviceId}`);
+        const deviceLockSnap = await getDoc(deviceLockRef);
+
+        if (deviceLockSnap.exists()) {
+          const lockData = deviceLockSnap.data();
+          if (lockData.ownerId !== foundStudent.id) {
+            // TRAP TRIGGERED!
+            setPageError("Güvenlik İhlali: Bu cihaz bugün başka bir öğrenci adına kullanılmış. Cihazınız mühürlenmiştir.");
+            
+            await setDoc(doc(db, 'security_logs', `${todayStr}_${currentDeviceId}_${Date.now()}`), {
+              type: 'cheat_attempt',
+              deviceId: currentDeviceId,
+              originalOwnerTc: lockData.ownerTc,
+              attemptedStudentTc: foundStudent.tc,
+              incognitoScore,
+              incognitoFlags,
+              clientIp,
+              message: "Farklı bir T.C. kimlik numarası ile giriş denenerek cihaz kilit mekanizması atlatılmaya çalışıldı.",
+              timestamp: serverTimestamp()
+            });
+            
+            return;
+          }
+        } else {
+          await setDoc(deviceLockRef, {
+            ownerId: foundStudent.id,
+            ownerTc: foundStudent.tc,
+            ipAddress: clientIp,
+            deviceOs: await getExactDeviceModel(),
+            compositeId: compositeId || currentDeviceId,
+            incognitoScore,
+            timestamp: serverTimestamp()
+          });
+        }
+      }
+
+      // === STABLE DEVICE LOCK (INCOGNITO-PROOF İKİNCİ KİLİT) ===
+      // Canvas/WebGL fingerprint incognito'da değişebilir, ama
+      // ekran+CPU+IP ASLA değişmez. Bu ikinci kilit her zaman tutar.
+      let stableId = localStorage.getItem('__bgz_stable_id');
+      if (!stableId) {
+        // localStorage'da yoksa yeniden üret (incognito dahil çalışır çünkü session içinde yazılmış)
+        stableId = await getStableDeviceId(clientIp);
+      }
+      if (stableId) {
+        const stableLockRef = doc(db, 'stable_device_locks', `${todayStr}_${stableId}`);
+        const stableLockSnap = await getDoc(stableLockRef);
+
+        if (stableLockSnap.exists()) {
+          const lockData = stableLockSnap.data();
+          if (lockData.ownerId !== foundStudent.id) {
+            // STABLE TRAP TRIGGERED! Incognito bile olsa bu cihaz yakalandı.
+            setPageError("Güvenlik İhlali: Bu cihaz bugün başka bir öğrenci adına kullanılmış. Gizli sekme kullanılsa dahi cihaz tespit edilmiştir.");
+            
+            await setDoc(doc(db, 'security_logs', `stable_${todayStr}_${stableId}_${Date.now()}`), {
+              type: 'stable_lock_cheat',
+              stableDeviceId: stableId,
+              originalOwnerId: lockData.ownerId,
+              attemptedStudentId: foundStudent.id,
+              attemptedStudentTc: foundStudent.tc,
+              incognitoScore,
+              clientIp,
+              message: 'Stable device lock ihlali: Aynı ekran/CPU/IP kombinasyonu ile farklı öğrenci girişi engellendi.',
+              timestamp: serverTimestamp()
+            });
+            
+            return;
+          }
+        } else {
+          await setDoc(stableLockRef, {
+            ownerId: foundStudent.id,
+            ownerTc: foundStudent.tc,
+            stableId,
+            deviceOs: await getExactDeviceModel(),
+            ipAddress: clientIp,
+            screenConfig: getScreenConfig(),
+            timestamp: serverTimestamp()
+          });
+        }
+      }
+
+      // === STUDENT DAILY LOCK (Cihaz Takibi - Bloklama Kaldırıldı) ===
+      const studentDailyLockRef = doc(db, 'student_daily_locks', `${todayStr}_${foundStudent.id}`);
+      const studentDailyLockSnap = await getDoc(studentDailyLockRef);
+      
+      if (!studentDailyLockSnap.exists()) {
+        // Öğrencinin bugünkü ilk girişi ise kaydedelim
+        await setDoc(studentDailyLockRef, {
+          studentId: foundStudent.id,
+          studentTc: foundStudent.tc,
+          deviceId: currentDeviceId,
+          stableId: stableId || 'unknown',
+          deviceOs: await getExactDeviceModel(),
+          ipAddress: clientIp,
+          timestamp: serverTimestamp()
+        }).catch(() => {});
+      }
+
+      // === GATE STATUS (Entry/Exit Logic) ===
+      const statusRef = doc(db, "gate_status", foundStudent.id);
+      const statusSnap = await getDoc(statusRef);
+      
+      let currentStatus = "outside";
+      let lastScanTime = null;
+
+      if (statusSnap.exists()) {
+        const data = statusSnap.data();
+        if (data.date === todayStr) {
+          currentStatus = data.status;
+          if (data.timestamp && data.timestamp.seconds) {
+            lastScanTime = data.timestamp.seconds;
+          }
+        }
+      }
+
+      let inCooldown = false;
+      const COOLDOWN_MINUTES = 3;
+
+      if (qrAction === 'entry') {
+        if (currentStatus === 'entry') {
+          finalMessage = "Zaten giriş yapıldı.";
+          newStatus = "entry";
+          inCooldown = true;
+        } else {
+          finalMessage = "Kurum girişi yapıldı.";
+          newStatus = "entry";
+        }
+      } else if (qrAction === 'exit') {
+        if (currentStatus === 'outside') {
+          finalMessage = "Önce kuruma giriş yapmalısınız.";
+          newStatus = "outside";
+          inCooldown = true;
+        } else if (currentStatus === 'exit') {
+          finalMessage = "Zaten çıkış yapıldı.";
+          newStatus = "exit";
+          inCooldown = true;
+        } else {
+          finalMessage = "Kurumdan çıkıldı.";
+          newStatus = "exit";
+        }
+      } else {
+        // Toggle mode
+        let timeCooldown = false;
+        if (lastScanTime && (nowSec - lastScanTime) < (COOLDOWN_MINUTES * 60)) {
+          timeCooldown = true;
+        }
+
+        if (timeCooldown) {
+          inCooldown = true;
+          if (currentStatus === "entry") {
+            finalMessage = "Zaten giriş yapıldı (Tekrar okutmak için biraz bekleyin).";
+            newStatus = "entry";
+          } else {
+            finalMessage = "Zaten çıkış yapıldı (Tekrar okutmak için biraz bekleyin).";
+            newStatus = "exit";
+          }
+        } else {
+          if (currentStatus === "entry") {
+            finalMessage = "Kurumdan çıkıldı.";
+            newStatus = "exit";
+          } else {
+            finalMessage = "Kurum girişi yapıldı.";
+            newStatus = "entry";
+          }
+        }
+      }
+
+      setSuccessMessage(finalMessage);
+      setStudent(foundStudent);
+      setIsVerifying(false);
+
+      // === AUTO-LOGIN KAYDET (başarılı giriş sonrası) ===
+      const hw = localStorage.getItem('__bgz_hardware_id');
+      if (hw && incognitoScore >= 50) {
+        saveAutoLogin(foundStudent, hw);
+      }
+
+      if (!inCooldown) {
+        // 1. Gate status güncelle
+        setDoc(statusRef, {
+          status: newStatus,
+          date: todayStr,
+          timestamp: serverTimestamp()
+        }).catch(err => console.error("gate_status write error:", err));
+
+        // 2. Attendance log yaz (HEM FIRESTORE HEM RTDB)
+        // A) Firestore (Güvenlik logları ve honeypot için)
+        addDoc(collection(db, "attendance_logs"), {
+          studentId: foundStudent.id,
+          studentName: foundStudent.name,
+          type: qrType,
+          action: qrAction || "toggle",
+          status: newStatus,
+          sessionId: sessionId,
+          suspicious: isSuspicious,
+          suspiciousReason: suspiciousReason || null,
+          incognitoScore,
+          deviceId: currentDeviceId || 'unknown',
+          clientIp,
+          timestamp: serverTimestamp()
+        }).catch(err => console.error("attendance_logs write error:", err));
+        
+        // B) Realtime Database (Canlı Geçiş Takibi İçin - Mobil Uygulama Formatında)
+        const dateString = new Date().toISOString().split('T')[0];
+        const rtdbData = {
+            sessionId: sessionId || "web_fallback",
+            type: qrType || "web_qr",
+            action: newStatus,
+            status: newStatus,
+            studentId: foundStudent.id,
+            userId: foundStudent.id, // Canlı Takip "userId" veya "studentId" bekleyebilir
+            studentName: foundStudent.name,
+            userName: foundStudent.name,
+            profileImageUrl: foundStudent.profileImage || foundStudent.profileImageUrl || "",
+            timestamp: rtdbServerTimestamp(),
+            date: dateString
         };
 
-        const res = await fetch('http://213.142.159.36:8080/api/qr/scan', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
+        const newLogRef = push(ref(rtdb, `qr_system/attendance_logs/${dateString}`));
+        const updates = {};
+        updates[`qr_system/attendance_logs/${dateString}/${newLogRef.key}`] = rtdbData;
+        updates[`qr_system/live_scans/${newLogRef.key}`] = rtdbData;
 
-        const data = await res.json();
+        update(ref(rtdb), updates).catch(err => console.error("RTDB write error:", err));
 
-        if (!data.success) {
-            setPageError(data.error || "Bilinmeyen bir hata oluştu.");
-            setIsVerifying(false);
-            setTcInput('');
-            return;
+        // 3. WhatsApp notification
+        try {
+          sendWhatsAppNotification(foundStudent.id, foundStudent.name, newStatus, new Date());
+        } catch (waErr) {
+          console.error("WhatsApp bildirim hatası:", waErr);
         }
+      }
 
-        setStudent(data.student);
-        setSuccessMessage(data.message || "Yoklamanız başarıyla alındı.");
-        
-        if (data.student) {
-            saveAutoLogin(data.student, payload.hardwareId);
-        }
+    } else {
+      // Non-institution QR (yoklama vb.)
+      finalMessage = "Yoklamanız başarıyla alındı.";
+      newStatus = "present";
+      setSuccessMessage(finalMessage);
+      setStudent(foundStudent);
+      setIsVerifying(false);
 
-        setTimeout(() => {
-            window.location.href = 'https://www.bogaziciyonetim.com';
-        }, 4000);
-
-    } catch (err) {
-        console.error("VDS API Hatası:", err);
-        setPageError("Sunucuya bağlanılamadı. Lütfen internet bağlantınızı kontrol edin.");
-        setIsVerifying(false);
-        setTcInput('');
+      addDoc(collection(db, "attendance_logs"), {
+        studentId: foundStudent.id,
+        studentName: foundStudent.name,
+        type: qrType,
+        status: newStatus,
+        sessionId: sessionId,
+        suspicious: isSuspicious,
+        suspiciousReason: suspiciousReason || null,
+        incognitoScore,
+        timestamp: serverTimestamp()
+      }).catch(err => console.error("attendance_logs write error:", err));
     }
   };
 
@@ -905,56 +1199,64 @@ const QRCodeRedirect = () => {
       setIsVerifying(true);
       
       try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const currentSessionId = urlParams.get('sessionId') || 'web_fallback';
-        const qrType = urlParams.get('type') || 'institution';
-        const action = urlParams.get('action') || 'toggle';
+        let foundStudent = null;
 
-        const payload = {
-            tc: val,
-            sessionId: currentSessionId,
-            qrType: qrType,
-            action: action,
-            incognitoScore: incognitoScore,
-            clientIp: clientIp || 'unknown',
-            hardwareId: hardwareId || localStorage.getItem('__bgz_hardware_id') || 'unknown',
-            deviceId: hardwareId || localStorage.getItem('__bgz_hardware_id') || 'unknown',
-            stableId: localStorage.getItem('__bgz_stable_id') || 'unknown',
-            deviceOs: osName || 'unknown'
-        };
+        // Işık hızında memory taraması
+        for (const data of cachedStudents) {
+          const tcRaw = data.tc_kimlik || data.tc || data.tcNo || data.tcKimlik || data.identityNumber || data.idNumber || "";
+          const tcString = String(tcRaw);
+          
+          if (tcString.endsWith(val)) {
+            const nameKeys = ["full_name", "fullName", "name", "displayName", "display_name"];
+            let name = "İsimsiz Öğrenci";
+            for (let k of nameKeys) {
+              if (data[k]) { name = data[k]; break; }
+            }
+            
+            const photoUrl = data.profile_image || data.profileImageUrl || data.profileImage || 
+              `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=9f1239&color=fff&size=200&bold=true`;
 
-        const res = await fetch('http://213.142.159.36:8080/api/qr/scan', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-
-        const data = await res.json();
-
-        if (!data.success) {
-            setPageError(data.error || "Bilinmeyen bir hata oluştu.");
-            setIsVerifying(false);
-            setTcInput('');
-            return;
+            foundStudent = { id: data.id, name, photo: photoUrl, tc: tcString };
+            break;
+          }
         }
 
-        setStudent(data.student);
-        setSuccessMessage(data.message || "Yoklamanız başarıyla alındı.");
-        
-        // Cihaza kaydet
-        if (data.student) {
-            saveAutoLogin(data.student, payload.hardwareId);
+        if (!foundStudent) {
+          // Önbellekte bulunamazsa DB'den çek
+          const q = query(collection(db, "users"), where("role", "in", ["student", "öğrenci"]));
+          const querySnapshot = await getDocs(q);
+          
+          for (const docSnap of querySnapshot.docs) {
+            const data = docSnap.data();
+            const tcRaw = data.tc_kimlik || data.tc || data.tcNo || data.tcKimlik || data.identityNumber || data.idNumber || "";
+            const tcString = String(tcRaw);
+            
+            if (tcString.endsWith(val)) {
+              const nameKeys = ["full_name", "fullName", "name", "displayName", "display_name"];
+              let name = "İsimsiz Öğrenci";
+              for (let k of nameKeys) {
+                if (data[k]) { name = data[k]; break; }
+              }
+              const photoUrl = data.profile_image || data.profileImageUrl || data.profileImage || 
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=9f1239&color=fff&size=200&bold=true`;
+              foundStudent = { id: docSnap.id, name, photo: photoUrl, tc: tcString };
+              break;
+            }
+          }
         }
 
-        setTimeout(() => {
-            window.location.href = 'https://www.bogaziciyonetim.com';
-        }, 4000);
+        if (foundStudent) {
+          await processAttendance(foundStudent);
+        } else {
+          setIsVerifying(false);
+          alert("Hata: Bu son 4 haneye sahip bir öğrenci bulunamadı.");
+          setTcInput('');
+        }
 
-      } catch (err) {
-        console.error("VDS API Hatası:", err);
-        setPageError("Sunucuya bağlanılamadı. Lütfen internet bağlantınızı kontrol edin.");
+      } catch (error) {
+        console.error("Firebase Hatası:", error);
         setIsVerifying(false);
-        setTcInput('');
+        alert("Veritabanı bağlantı hatası.");
       }
     }
   };

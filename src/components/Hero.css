@@ -1,3 +1,4 @@
+/* ===== ORIGINAL HERO SECTION WITH FRAMES ===== */
 .hero {
   position: relative;
   min-height: 600px;
@@ -51,11 +52,40 @@
 .hero-desc { color: rgba(255,255,255,0.8); font-size: 1.05rem; margin-bottom: 30px; line-height: 1.7; }
 .hero-btns { display: flex; gap: 16px; }
 
+.hero-btns .btn {
+  padding: 12px 28px;
+  font-size: 0.95rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  box-shadow: none !important;
+  text-decoration: none;
+  font-family: var(--font-heading, 'Outfit', sans-serif);
+  transition: all 0.2s ease;
+}
+.btn-red {
+  background: var(--red-main);
+  color: #FFFFFF;
+}
+.btn-red:hover {
+  background: #c41e17;
+}
+.btn-outline-white {
+  background: transparent;
+  color: #FFFFFF;
+  border: 1.5px solid rgba(255, 255, 255, 0.8);
+}
+.btn-outline-white:hover {
+  background: #FFFFFF !important;
+  color: var(--blue-main, #103A69) !important;
+  border-color: #FFFFFF !important;
+}
+
 .hero-nav {
   position: absolute; top: 50%; transform: translateY(-50%); z-index: 3;
   width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
   background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
   color: var(--white); font-size: 1.8rem; border-radius: 50%; transition: all 0.2s;
+  cursor: pointer;
 }
 .hero-nav:hover { background: rgba(255,255,255,0.3); }
 .hero-prev { left: 20px; }
